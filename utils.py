@@ -153,7 +153,8 @@ from scipy.stats import pearsonr
 def plot_lorenz_prediction_vs_truth(
     t, x_true, y_true, z_true, y_pred, z_pred, 
     title_prefix='', 
-    model_hparams=''
+    model_hparams='',
+    save_path=None
 ):
     """
     Plot Lorenz system predictions vs ground truth for a single trajectory,
@@ -218,4 +219,8 @@ def plot_lorenz_prediction_vs_truth(
     )
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.show()
+    if save_path:
+        plt.savefig(save_path)
+        plt.close()
+    else:
+        plt.show()
