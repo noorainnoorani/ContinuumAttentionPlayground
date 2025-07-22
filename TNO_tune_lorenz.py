@@ -22,33 +22,33 @@ from datasets import MetaDataModule
 from models.TNO.TNO_lightning import SimpleEncoderModule
 
 # Define your hyperparameter grid
-model_grid = [
-    {'d_model': 32, 'nhead': 4, 'num_layers': 2, 'dim_feedforward': 128, 'dropout': 0.1},
-    {'d_model': 64, 'nhead': 8, 'num_layers': 4, 'dim_feedforward': 256, 'dropout': 0.2},
-    # Add more combinations as needed
-]
+# model_grid = [
+#     {'d_model': 32, 'nhead': 4, 'num_layers': 2, 'dim_feedforward': 128, 'dropout': 0.1},
+#     {'d_model': 64, 'nhead': 8, 'num_layers': 4, 'dim_feedforward': 256, 'dropout': 0.2},
+#     # Add more combinations as needed
+# ]
 
-# param_grid = {
-#     'd_model': [64, 128, 256],
-#     'nhead': [4, 8],
-#     'num_layers': [4, 6],
-#     'dim_feedforward': [64, 128, 256],
-# }
+param_grid = {
+    'd_model': [64, 128, 256],
+    'nhead': [4, 8],
+    'num_layers': [4, 6],
+    'dim_feedforward': [64, 128, 256],
+}
 
-# # Generate all combinations
-# keys = list(param_grid.keys())
-# values = list(param_grid.values())
-# model_grid = [dict(zip(keys, v)) for v in itertools.product(*values)]
+# Generate all combinations
+keys = list(param_grid.keys())
+values = list(param_grid.values())
+model_grid = [dict(zip(keys, v)) for v in itertools.product(*values)]
 
 
 data_grid = [
     # Add more combinations as needed
-    {'T': 2, 'batch_size': 64, 'sample_rate': 0.025},
-    {'T': 2, 'batch_size': 128, 'sample_rate': 0.025},
-    # {'T': 20, 'batch_size': 64, 'sample_rate': 0.025},
-    # {'T': 20, 'batch_size': 128, 'sample_rate': 0.025},
-    # {'T': 50, 'batch_size': 64, 'sample_rate': 0.025},
-    # {'T': 50, 'batch_size': 128, 'sample_rate': 0.025}
+    {'T': 5, 'batch_size': 64, 'sample_rate': 0.025},
+    {'T': 5, 'batch_size': 128, 'sample_rate': 0.025},
+    {'T': 20, 'batch_size': 64, 'sample_rate': 0.025},
+    {'T': 20, 'batch_size': 128, 'sample_rate': 0.025},
+    {'T': 50, 'batch_size': 64, 'sample_rate': 0.025},
+    {'T': 50, 'batch_size': 128, 'sample_rate': 0.025}
 ]
 
 results = []
