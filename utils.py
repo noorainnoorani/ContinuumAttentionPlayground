@@ -143,3 +143,79 @@ def patch_coords(matrix):
     
     return coords
 
+# plotting functions for Lorentz system predictions
+
+import numpy as np
+import matplotlib.pyplot as plt
+from tslearn.metrics import dtw
+from scipy.stats import pearsonr
+
+def plot_lorenz_prediction_vs_truth(
+    t, x_true, y_true, z_true, y_pred, z_pred, 
+    title_prefix='', 
+    model_hparams=''
+):
+    """
+    Plot Lorenz system predictions vs ground truth for a single trajectory,
+    and compute DTW distance and Pearson correlation for y and z.
+
+    Args:
+        t (np.ndarray): Time array.
+        x_true (np.ndarray): True x values.
+        y_true (np.ndarray): True y values.
+        z_true (np.ndarray): True z values.
+        y_pred (np.ndarray): Predicted y values.
+        z_pred (np.ndarray): Predicted z values.
+        title_prefix (str): Optional prefix for the plot title.
+        model_hparams (str): Model hyperparameters to display in the title.
+    """
+    # ——— Compute new similarity metrics ———
+    # 1) DTW distance
+    dtw_y = dtw(y_true, y_pred)
+    dtw_z = dtw(z_true, z_pred)
+
+    # 2) Pearson correlation coefficient
+    corr_y, _ = pearsonr(y_true, y_pred)
+    corr_z, _ = pearsonr(z_true, z_pred)
+
+    # Print them
+    print(f"{title_prefix}DTW y: {dtw_y:.4e}, Pearson r y: {corr_y:.4f}")
+    print(f"{title_prefix}DTW z: {dtw_z:.4e}, Pearson r z: {corr_z:.4f}")
+
+    # ——— Plotting ———
+    fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+
+    axs[0].plot(t, x_true, label='True x')
+    axs[0].set_ylabel('x')
+    axs[0].legend()
+
+    axs[1].plot(t, y_true, label='True y')
+    axs[1].plot(t, y_pred, '--', label='Pred y')
+    axs[1].set_ylabel('y')
+    axs[1].legend()
+
+    axs[2].plot(t, z_true, label='True z')
+    axs[2].plot(t, z_pred, '--', label='Pred z')
+    axs[2].set_xlabel('Time')
+    axs[2].set_ylabel('z')
+    axs[2].legend()
+
+    # Super title with hyperparameters
+    plt.suptitle(
+        f"{title_prefix}Prediction vs Ground Truth\n"
+        f"Model: {model_hparams}",
+        fontsize=14
+    )
+
+    # Text box with the new metrics
+    metrics_text = (
+        f"DTW y: {dtw_y:.2e}, Pearson r y: {corr_y:.2f}\n"
+        f"DTW z: {dtw_z:.2e}, Pearson r z: {corr_z:.2f}"
+    )
+    plt.gcf().text(
+        0.99, 0.01, metrics_text, fontsize=12, ha='right', va='bottom',
+        bbox=dict(facecolor='white', alpha=0.8, edgecolor='gray')
+    )
+
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.show()

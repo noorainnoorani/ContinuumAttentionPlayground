@@ -1,0 +1,3 @@
+epoch,loss/val/mse,loss/val/rel_L2,loss/val/sup,lr-Adam,step
+,,,,0.001,0
+0,0.6888181567192078,0.7988390326499939,2.8542864322662354,,6
