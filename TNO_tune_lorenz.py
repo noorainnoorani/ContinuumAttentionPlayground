@@ -10,34 +10,45 @@ from utils import plot_lorenz_prediction_vs_truth
 from tslearn.metrics import dtw
 from scipy.stats import pearsonr
 
+import torch
+from pytorch_lightning import Trainer, seed_everything
+from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.callbacks import LearningRateMonitor, EarlyStopping
+import wandb
+from pytorch_lightning.tuner import Tuner
+
+# Import custom modules
+from datasets import MetaDataModule
+from models.TNO.TNO_lightning import SimpleEncoderModule
+
 # Define your hyperparameter grid
-# model_grid = [
-#     {'d_model': 32, 'nhead': 4, 'num_layers': 2, 'dim_feedforward': 128, 'dropout': 0.1},
-#     {'d_model': 64, 'nhead': 8, 'num_layers': 4, 'dim_feedforward': 256, 'dropout': 0.2},
-#     # Add more combinations as needed
-# ]
+model_grid = [
+    {'d_model': 32, 'nhead': 4, 'num_layers': 2, 'dim_feedforward': 128, 'dropout': 0.1},
+    {'d_model': 64, 'nhead': 8, 'num_layers': 4, 'dim_feedforward': 256, 'dropout': 0.2},
+    # Add more combinations as needed
+]
 
-param_grid = {
-    'd_model': [64, 128, 256],
-    'nhead': [4, 8],
-    'num_layers': [4, 6],
-    'dim_feedforward': [64, 128, 256],
-}
+# param_grid = {
+#     'd_model': [64, 128, 256],
+#     'nhead': [4, 8],
+#     'num_layers': [4, 6],
+#     'dim_feedforward': [64, 128, 256],
+# }
 
-# Generate all combinations
-keys = list(param_grid.keys())
-values = list(param_grid.values())
-model_grid = [dict(zip(keys, v)) for v in itertools.product(*values)]
+# # Generate all combinations
+# keys = list(param_grid.keys())
+# values = list(param_grid.values())
+# model_grid = [dict(zip(keys, v)) for v in itertools.product(*values)]
 
 
 data_grid = [
     # Add more combinations as needed
-    {'T': 5, 'batch_size': 64, 'sample_rate': 0.025},
-    {'T': 5, 'batch_size': 128, 'sample_rate': 0.025},
-    {'T': 20, 'batch_size': 64, 'sample_rate': 0.025},
-    {'T': 20, 'batch_size': 128, 'sample_rate': 0.025},
-    {'T': 50, 'batch_size': 64, 'sample_rate': 0.025},
-    {'T': 50, 'batch_size': 128, 'sample_rate': 0.025}
+    {'T': 2, 'batch_size': 64, 'sample_rate': 0.025},
+    {'T': 2, 'batch_size': 128, 'sample_rate': 0.025},
+    # {'T': 20, 'batch_size': 64, 'sample_rate': 0.025},
+    # {'T': 20, 'batch_size': 128, 'sample_rate': 0.025},
+    # {'T': 50, 'batch_size': 64, 'sample_rate': 0.025},
+    # {'T': 50, 'batch_size': 128, 'sample_rate': 0.025}
 ]
 
 results = []
@@ -74,6 +85,20 @@ for mparams in model_grid:
 
         # --- 3. Train model (simple loop, or use Trainer as in notebook) ---
         # For brevity, here we skip training code; insert your Trainer.fit() here
+        # Set up callbacks (optional but recommended)
+        lr_monitor = LearningRateMonitor(logging_interval='epoch')
+        early_stop = EarlyStopping(monitor='loss/val/mse', patience=5, mode="min")
+
+        # Set up PyTorch Lightning Trainer (no WandbLogger)
+        trainer = Trainer(
+            max_epochs=200,
+            callbacks=[lr_monitor, early_stop],
+            accelerator="auto",  # use GPU if available
+        )
+
+        # Fit the model using the dataloader
+        trainer.fit(model, train_dataloaders=dataloader, val_dataloaders=dataloader)
+        
 
         # --- 4. Evaluate and plot ---
         model.eval()
@@ -87,6 +112,14 @@ for mparams in model_grid:
                 times_y = times_y.to(device)
                 y_pred = model(x_batch, y_batch, times_x, times_y)
                 break  # Only first batch
+
+        # Create a unique directory for this run
+        run_name = (
+            f"dmodel{mparams['d_model']}_nhead{mparams['nhead']}_layers{mparams['num_layers']}_"
+            f"ff{mparams['dim_feedforward']}_T{dparams['T']}_bs{dparams['batch_size']}_sr{dparams['sample_rate']}"
+        )
+        run_dir = os.path.join("plots", run_name)
+        os.makedirs(run_dir, exist_ok=True)
 
         # Save plots and errors for each sample in batch
         for i in range(x_batch.shape[0]):
@@ -104,7 +137,7 @@ for mparams in model_grid:
             pearson_z, _ = pearsonr(z_true_i, z_pred_i)
 
             # Save plot
-            plot_path = f"plots/lorenz_pred_{mparams['d_model']}_{mparams['nhead']}_{mparams['num_layers']}_{dparams['batch_size']}_{dparams['sample_rate']}_sample{i}.png"
+            plot_path = os.path.join(run_dir, f"sample{i}.png")
             plot_lorenz_prediction_vs_truth(
                 t_i, x_true_i, y_true_i, z_true_i, y_pred_i, z_pred_i,
                 title_prefix=f"Sample {i}: ",
