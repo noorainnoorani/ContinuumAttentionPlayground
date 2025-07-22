@@ -78,7 +78,7 @@ for mparams in model_grid:
             nhead=mparams['nhead'],
             num_layers=mparams['num_layers'],
             dim_feedforward=mparams['dim_feedforward'],
-            dropout=mparams['dropout'],
+            dropout=1e-4,
             learning_rate=1e-3,
             activation='gelu'
         )
