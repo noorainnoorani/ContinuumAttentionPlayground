@@ -429,7 +429,8 @@ class SimpleEncoderModule(pl.LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         config = {
             # REQUIRED: The scheduler instance
-            "scheduler": ReduceLROnPlateau(optimizer, verbose=True, **self.lr_scheduler_params),
+            # "scheduler": ReduceLROnPlateau(optimizer, verbose=True, **self.lr_scheduler_params),
+            "scheduler": ReduceLROnPlateau(optimizer, **self.lr_scheduler_params),
             # The unit of the scheduler's step size, could also be 'step'.
             # 'epoch' updates the scheduler on epoch end whereas 'step'
             # updates it after a optimizer update.
