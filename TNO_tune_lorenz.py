@@ -94,6 +94,7 @@ for mparams in model_grid:
             max_epochs=200,
             callbacks=[lr_monitor, early_stop],
             accelerator="auto",  # use GPU if available
+            strategy='ddp_find_unused_parameters_true',
         )
 
         # Fit the model using the dataloader
