@@ -36,7 +36,7 @@ tqdm==4.67.1
 tslearn==0.6.4
 typing-extensions==4.12.2
 urllib3==2.3.0
-wandb==1.0.0
+wandb
 wheel==0.45.1
 
 # PyTorch CPU-only wheels (from the official PyTorch index)
