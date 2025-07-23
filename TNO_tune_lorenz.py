@@ -32,7 +32,7 @@ param_grid = {
     'd_model': [64, 128, 256],
     'nhead': [4, 8],
     'num_layers': [4, 6],
-    'dim_feedforward': [64, 128, 256],
+    'dim_feedforward': [128, 256],
 }
 
 # Generate all combinations
@@ -43,8 +43,8 @@ model_grid = [dict(zip(keys, v)) for v in itertools.product(*values)]
 
 data_grid = [
     # Add more combinations as needed
-    {'T': 5, 'batch_size': 64, 'sample_rate': 0.025},
-    {'T': 5, 'batch_size': 128, 'sample_rate': 0.025},
+    # {'T': 5, 'batch_size': 64, 'sample_rate': 0.025},
+    # {'T': 5, 'batch_size': 128, 'sample_rate': 0.025},
     {'T': 20, 'batch_size': 64, 'sample_rate': 0.025},
     {'T': 20, 'batch_size': 128, 'sample_rate': 0.025},
     {'T': 50, 'batch_size': 64, 'sample_rate': 0.025},
@@ -87,7 +87,7 @@ for mparams in model_grid:
         # For brevity, here we skip training code; insert your Trainer.fit() here
         # Set up callbacks (optional but recommended)
         lr_monitor = LearningRateMonitor(logging_interval='epoch')
-        early_stop = EarlyStopping(monitor='loss/val/mse', patience=5, mode="min")
+        early_stop = EarlyStopping(monitor='loss/val/mse', patience=10, mode="min")
 
         # Set up PyTorch Lightning Trainer (no WandbLogger)
         trainer = Trainer(
