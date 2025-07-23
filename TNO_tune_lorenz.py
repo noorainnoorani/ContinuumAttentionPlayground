@@ -52,8 +52,8 @@ data_grid = [
     # {'T': 5, 'batch_size': 64, 'sample_rate': 0.025},
     # {'T': 5, 'batch_size': 128, 'sample_rate': 0.025},
     {'T': 20, 'batch_size': 64, 'sample_rate': 0.025},
-    {'T': 20, 'batch_size': 128, 'sample_rate': 0.025},
-    # {'T': 50, 'batch_size': 64, 'sample_rate': 0.025},
+    # {'T': 20, 'batch_size': 128, 'sample_rate': 0.025},
+    {'T': 25, 'batch_size': 64, 'sample_rate': 0.025},
     # {'T': 50, 'batch_size': 128, 'sample_rate': 0.025}
 ]
 
