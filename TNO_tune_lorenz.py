@@ -54,11 +54,13 @@ data_grid = [
 results = []
 os.makedirs("plots", exist_ok=True)
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 for mparams in model_grid:
     for dparams in data_grid:
         # --- 1. Prepare data ---
         dataset = DynamicsDataset(
-            size=10000,
+            size=1000,
             T=dparams['T'],
             sample_rate=dparams['sample_rate'],
             params={'rho': 24.4},
@@ -83,6 +85,8 @@ for mparams in model_grid:
             activation='gelu'
         )
 
+        model.to(device)
+
         # --- 3. Train model (simple loop, or use Trainer as in notebook) ---
         # For brevity, here we skip training code; insert your Trainer.fit() here
         # Set up callbacks (optional but recommended)
@@ -103,7 +107,6 @@ for mparams in model_grid:
 
         # --- 4. Evaluate and plot ---
         model.eval()
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
         with torch.no_grad():
             for x_batch, y_batch, times_x, times_y in dataloader:
@@ -167,7 +170,8 @@ for mparams in model_grid:
         model_save_path = os.path.join(run_dir, model_filename)
         torch.save(model.state_dict(), model_save_path)
 
-        # Optionally, clear memory
+        # Move model to CPU and clear memory
+        model.to('cpu')
         del model
         torch.cuda.empty_cache()
         import gc; gc.collect()
