@@ -32,7 +32,7 @@ param_grid = {
     'd_model': [64, 128, 256],
     'nhead': [4, 8],
     'num_layers': [4, 6],
-    'dim_feedforward': [128, 256],
+    'dim_feedforward': [128, 256],    # Create a unique directory for this run's model
 }
 
 # Generate all combinations
@@ -158,6 +158,19 @@ for mparams in model_grid:
                 'plot_path': plot_path
             }
             results.append(result)
+
+        # Save the model checkpoint with hyperparameters in the filename
+        model_filename = (
+            f"model_dmodel{mparams['d_model']}_nhead{mparams['nhead']}_layers{mparams['num_layers']}_"
+            f"ff{mparams['dim_feedforward']}_T{dparams['T']}_bs{dparams['batch_size']}_sr{dparams['sample_rate']}.pt"
+        )
+        model_save_path = os.path.join(run_dir, model_filename)
+        torch.save(model.state_dict(), model_save_path)
+
+        # Optionally, clear memory
+        del model
+        torch.cuda.empty_cache()
+        import gc; gc.collect()
 
 # --- 5. Save all results to CSV ---
 with open("lorenz_hyperparam_results.csv", "w", newline="") as f:
