@@ -21,6 +21,12 @@ from pytorch_lightning.tuner import Tuner
 from datasets import MetaDataModule
 from models.TNO.TNO_lightning import SimpleEncoderModule
 
+import gc
+
+# clear any old processes
+torch.cuda.empty_cache()
+gc.collect()
+
 # Define your hyperparameter grid
 # model_grid = [
 #     {'d_model': 32, 'nhead': 4, 'num_layers': 2, 'dim_feedforward': 128, 'dropout': 0.1},
@@ -58,6 +64,15 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 for mparams in model_grid:
     for dparams in data_grid:
+        # Clear memory before each run
+        torch.cuda.empty_cache()
+        import gc; gc.collect()
+        
+        # Optional: Print memory stats for debugging
+        print(f"\nStarting run with params: {mparams}, {dparams}")
+        print(f"GPU memory allocated: {torch.cuda.memory_allocated(device)/1e9:.2f} GB")
+        print(f"GPU memory cached: {torch.cuda.memory_reserved(device)/1e9:.2f} GB")
+
         # --- 1. Prepare data ---
         dataset = DynamicsDataset(
             size=1000,
