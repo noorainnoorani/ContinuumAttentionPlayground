@@ -36,7 +36,7 @@ urllib3==2.3.0
 wheel==0.45.1
 
 # PyTorch CPU-only wheels (from the official PyTorch index)
-torch==2.5.1
+torch==2.6.0
 torchvision==0.21.0
 torchaudio==2.6.0
 torchdiffeq==0.2.2
