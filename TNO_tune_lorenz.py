@@ -75,7 +75,7 @@ for mparams in model_grid:
 
         # --- 1. Prepare data ---
         dataset = DynamicsDataset(
-            size=1000,
+            size=10000,
             T=dparams['T'],
             sample_rate=dparams['sample_rate'],
             params={'rho': 24.4},
